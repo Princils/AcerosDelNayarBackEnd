@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Comercial\AdmBitacorasController;
 use App\Http\Controllers\Api\Comercial\AdmDocumentosController;
 use App\Http\Controllers\Api\Configuracion\ConexionDinamica;
+use App\Models\Comercial\AdmDocumentos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -48,7 +49,20 @@ Route::get('alert/FacturasProveedoresProximasAVencerCompras',[AdmDocumentosContr
 
 /*
 |--------------------------------------------------------------------------
-| EXTRACCION DE ALERTAS POR FILTRO DE FECHAS
+| EXTRACCION DE ALERTAS PARA REPORTES DE BITACORA
 |--------------------------------------------------------------------------
 */
 Route::post('alert/ModificacionesDeComprasBitacoras',[AdmBitacorasController::class,'ModificacionesDeComprasBitacoras']);
+Route::post('alert/CancelacionesDeComprasBitacora',[AdmBitacorasController::class,'CancelacionesDeComprasBitacora']);
+Route::post('alert/CancelacionesDeFacturasRemisionNotadeventaBitacora',[AdmBitacorasController::class,'CancelacionesDeFacturasRemisionNotadeventaBitacora']);
+Route::post('alert/EliminacionDeDocumentosNotasRemisionesBitacora',[AdmBitacorasController::class,'EliminacionDeDocumentosNotasRemisionesBitacora']);
+
+
+
+/*
+|--------------------------------------------------------------------------
+| EXTRACCION DE ALERTAS PARA REPORTES DE DOCUMENTOS
+|--------------------------------------------------------------------------
+*/
+Route::post('alert/documentos/ComprasSinGastosSobreCompras',[AdmDocumentosController::class,'ComprasSinGastosSobreComprasDocumentos']);
+Route::post('alert/documentos/ComprasSinFechaDescuentoProntoPagoDocumentos',[AdmDocumentosController::class,'ComprasSinFechaDescuentoProntoPagoDocumentos']);
