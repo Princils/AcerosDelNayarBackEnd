@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Comercial\AdmAlmacenController;
 use App\Http\Controllers\Api\Comercial\AdmBitacorasController;
 use App\Http\Controllers\Api\Comercial\AdmDocumentosController;
 use App\Http\Controllers\Api\Configuracion\ConexionDinamica;
@@ -66,3 +67,12 @@ Route::post('alert/EliminacionDeDocumentosNotasRemisionesBitacora',[AdmBitacoras
 */
 Route::post('alert/documentos/ComprasSinGastosSobreCompras',[AdmDocumentosController::class,'ComprasSinGastosSobreComprasDocumentos']);
 Route::post('alert/documentos/ComprasSinFechaDescuentoProntoPagoDocumentos',[AdmDocumentosController::class,'ComprasSinFechaDescuentoProntoPagoDocumentos']);
+
+
+/*
+|--------------------------------------------------------------------------
+| EXTRACCION DE ALERTAS PARA REPORTES DE ALMACEN
+|--------------------------------------------------------------------------
+*/
+
+Route::post('alert/Almacen/ProductosConAlmacenAlMinimoAlmacen',[AdmAlmacenController::class,'ProductosConAlmacenAlMinimoAlmacen']);
