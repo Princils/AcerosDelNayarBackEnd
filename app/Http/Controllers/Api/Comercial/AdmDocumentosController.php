@@ -65,7 +65,7 @@ public function ComprasSinGastosSobreComprasDocumentos(Request $request)
         ->select("
             SELECT 
                 CSERIEDOCUMENTO as Serie, 
-                CFOLIO as Folio, FORMAT(CONVERT(DATETIME, CFECHA, 103), 'yyyy/MM/dd') as Fecha, 
+                CFOLIO as Folio, FORMAT(CONVERT(DATETIME, CFECHA, 103), 'dd/MM/yyyy') as Fecha, 
                 CRAZONSOCIAL as cliente, 
                 CUSUARIO as usuario
             FROM admDocumentos 
@@ -111,11 +111,11 @@ public function ComprasSinFechaDescuentoProntoPagoDocumentos(Request $request)
         ->select("
             SELECT 
                 CSERIEDOCUMENTO as Serie, 
-                CFOLIO as Folio, FORMAT(CONVERT(DATETIME, CFECHA, 103), 'yyyy/MM/dd') as Fecha, 
+                CFOLIO as Folio, FORMAT(CONVERT(DATETIME, CFECHA, 103), 'dd/MM/yyyy') as Fecha, 
                 CRAZONSOCIAL as cliente, 
                 CUSUARIO as usuario,
-                FORMAT(CONVERT(DATETIME, CFECHAEXTRA, 103), 'yyyy/MM/dd') as FechaExtra,
-                FORMAT(CONVERT(DATETIME, CFECHAPRONTOPAGO, 103), 'yyyy/MM/dd') as FechaProntoPago
+                FORMAT(CONVERT(DATETIME, CFECHAEXTRA, 103), 'dd/MM/yyyy') as FechaExtra,
+                FORMAT(CONVERT(DATETIME, CFECHAPRONTOPAGO, 103), 'dd/MM/yyyy') as FechaProntoPago
             FROM admDocumentos 
             WHERE 
                 CIDDOCUMENTODE = 19  
@@ -124,6 +124,48 @@ public function ComprasSinFechaDescuentoProntoPagoDocumentos(Request $request)
                 AND CFECHA >= CONVERT(datetime,?,21)
                 AND CFECHA <= CONVERT(datetime,?,21)
             ORDER BY CFECHA DESC
+        ", [$fechainicio, $fechafin]);
+
+    return response()->json([
+        'response' => true,
+        'message' => $respuesta
+    ]);
+}
+
+
+/***************************************************************************************************************/
+/*	Alerta de facturas vencidas de proveedores “compras” , campo de fecha de vencimiento , alertar un dia antes*/
+/*								   		Facturas_Vencidas_Dia_Antes											   */
+/***************************************************************************************************************/
+
+public function FacturasVencidasDiaAntes(Request $request)
+{
+    // Si no existen, asigna la fecha actual a fechainicio y fechafin
+    $hoy = now()->format('Y-m-d');
+
+    $fechainicio = $request->input('fechainicio', $hoy);
+    $fechafin = $request->input('fechafin', $hoy);
+
+    // Realiza la validación de las fechas
+    $request->validate([
+        'fechainicio' => 'required|date',
+        'fechafin' => 'required|date',
+    ]);
+
+    // Asegura que fechafin incluya el final del día
+    $fechafin = date('Y-m-d 23:59:59', strtotime($fechafin));
+
+    // Ejecuta la consulta utilizando la conexión sqlsrvComercial_dinamica
+    $respuesta = DB::connection('sqlsrvComercial_dinamica')
+        ->select("
+            SELECT 
+                FORMAT(CONVERT(DATETIME, CFECHA, 103), 'dd/MM/yyyy') as Alta,
+                CSERIEDOCUMENTO, CFOLIO, CRAZONSOCIAL, 
+                FORMAT(CONVERT(DATETIME,CFECHAVENCIMIENTO, 103), 'dd/MM/yyyy') AS Vencimiento, ROUND(CTOTAL,2) as Total, ROUND(CPENDIENTE,2) as Pendiente
+            FROM admDocumentos WHERE CIDDOCUMENTODE = 19  AND CPENDIENTE > 0  AND CCANCELADO = 0   AND CDEVUELTO = 0
+                AND CFECHAVENCIMIENTO >= CONVERT(datetime,?,21)
+                AND CFECHAVENCIMIENTO <= CONVERT(datetime,?,21)
+            ORDER BY CFECHAVENCIMIENTO DESC
         ", [$fechainicio, $fechafin]);
 
     return response()->json([

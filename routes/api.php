@@ -67,7 +67,7 @@ Route::post('alert/EliminacionDeDocumentosNotasRemisionesBitacora',[AdmBitacoras
 */
 Route::post('alert/documentos/ComprasSinGastosSobreCompras',[AdmDocumentosController::class,'ComprasSinGastosSobreComprasDocumentos']);
 Route::post('alert/documentos/ComprasSinFechaDescuentoProntoPagoDocumentos',[AdmDocumentosController::class,'ComprasSinFechaDescuentoProntoPagoDocumentos']);
-
+Route::post('alert/documentos/FacturasVencidasDiaAntes',[AdmDocumentosController::class,'FacturasVencidasDiaAntes']);
 
 /*
 |--------------------------------------------------------------------------
