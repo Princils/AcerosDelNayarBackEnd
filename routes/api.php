@@ -67,8 +67,9 @@ Route::post('alert/EliminacionDeDocumentosNotasRemisionesBitacora',[AdmBitacoras
 */
 Route::post('alert/documentos/ComprasSinGastosSobreCompras',[AdmDocumentosController::class,'ComprasSinGastosSobreComprasDocumentos']);
 Route::post('alert/documentos/ComprasSinFechaDescuentoProntoPagoDocumentos',[AdmDocumentosController::class,'ComprasSinFechaDescuentoProntoPagoDocumentos']);
-
-
+Route::post('alert/documentos/FacturasVencidasDiaAntes',[AdmDocumentosController::class,'FacturasVencidasDiaAntes']);
+Route::post('alert/documentos/FacturasConPago99YConPPD',[AdmDocumentosController::class,'FacturasConPago99YConPPD']);
+Route::post('alert/documentos/FacturasConFormaPagoDistintaA99',[AdmDocumentosController::class,'FacturasConFormaPagoDistintaA99']);
 /*
 |--------------------------------------------------------------------------
 | EXTRACCION DE ALERTAS PARA REPORTES DE ALMACEN
