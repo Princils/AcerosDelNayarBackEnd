@@ -174,5 +174,100 @@ public function FacturasVencidasDiaAntes(Request $request)
     ]);
 }
 
+/**********************************************************************************************************************************************************************************************/
+/*										Revisión de que todas las facturas esten pagadas que tengan la forma de pago distinta a 99 de lo contrario alerta											  */
+/*                                                                  FacturasConPago99YConPPD                                                                                              */    
+/**********************************************************************************************************************************************************************************************/
+
+public function FacturasConPago99YConPPD(Request $request)
+{
+    // Si no existen, asigna la fecha actual a fechainicio y fechafin
+    $hoy = now()->format('Y-m-d');
+
+    $fechainicio = $request->input('fechainicio', $hoy);
+    $fechafin = $request->input('fechafin', $hoy);
+
+    // Realiza la validación de las fechas
+    $request->validate([
+        'fechainicio' => 'required|date',
+        'fechafin' => 'required|date',
+    ]);
+
+    // Asegura que fechafin incluya el final del día
+    $fechafin = date('Y-m-d 23:59:59', strtotime($fechafin));
+
+    // Ejecuta la consulta utilizando la conexión sqlsrvComercial_dinamica
+    $respuesta = DB::connection('sqlsrvComercial_dinamica')
+        ->select("
+            SELECT 
+                FORMAT(CONVERT(DATETIME, CFECHA, 103), 'dd/MM/yyyy') as Alta,
+                CSERIEDOCUMENTO, CFOLIO, CRAZONSOCIAL, 
+                FORMAT(CONVERT(DATETIME,CFECHAVENCIMIENTO, 103), 'dd/MM/yyyy') AS Vencimiento, 
+                ROUND(CTOTAL,2) as Total, 
+                ROUND(CPENDIENTE,2) as Pendiente
+            FROM admDocumentos 
+            WHERE 
+                CMETODOPAG = 99 
+                --ME FALTO AGREGARLE EL METODO PAGO PERO NO PUDE ENCONTRAR EL CAMPO PARA EL PPD
+                AND CCANCELADO = 0 AND CDEVUELTO = 0 AND CPENDIENTE != 0 --NOSE SI CPENDIENTE APLIQUE YA QUE SE ESTA REVISANDO FACTURAS QUE TENGAS LOS 2 CAMPOS
+                AND CFECHA >= CONVERT(datetime,?,21)
+                AND CFECHA <= CONVERT(datetime,?,21)
+            ORDER BY CFECHA DESC
+        ", [$fechainicio, $fechafin]);
+
+    return response()->json([
+        'response' => true,
+        'message' => $respuesta
+    ]);
+}
+
+
+/**********************************************************************************************************************************************************************************************/
+/*										Revisión de que todas las facturas esten pagadas que tengan la forma de pago distinta a 99 de lo contrario alerta											  */
+/*											FACTURAS PAGADAS CON FORMA DE PAGO DISTINTA A 99                                                                        */
+/**********************************************************************************************************************************************************************************************/
+
+
+public function FacturasConFormaPagoDistintaA99(Request $request)
+{
+    // Si no existen, asigna la fecha actual a fechainicio y fechafin
+    $hoy = now()->format('Y-m-d');
+
+    $fechainicio = $request->input('fechainicio', $hoy);
+    $fechafin = $request->input('fechafin', $hoy);
+
+    // Realiza la validación de las fechas
+    $request->validate([
+        'fechainicio' => 'required|date',
+        'fechafin' => 'required|date',
+    ]);
+
+    // Asegura que fechafin incluya el final del día
+    $fechafin = date('Y-m-d 23:59:59', strtotime($fechafin));
+
+    // Ejecuta la consulta utilizando la conexión sqlsrvComercial_dinamica
+    $respuesta = DB::connection('sqlsrvComercial_dinamica')
+        ->select("
+            SELECT 
+                FORMAT(CONVERT(DATETIME, CFECHA, 103), 'dd/MM/yyyy') as Alta,
+                CSERIEDOCUMENTO, CFOLIO, CRAZONSOCIAL, 
+                FORMAT(CONVERT(DATETIME,CFECHAVENCIMIENTO, 103), 'dd/MM/yyyy') AS Vencimiento, 
+                ROUND(CTOTAL,2) as Total, 
+                ROUND(CPENDIENTE,2) as Pendiente
+            FROM admDocumentos 
+            WHERE 
+                CMETODOPAG != 99 
+                AND CIDDOCUMENTODE = 4 --CIDDOCUMENTO 4 = FACTURA
+                AND CCANCELADO = 0 AND CDEVUELTO = 0 AND CPENDIENTE != 0 
+                AND CFECHA >= CONVERT(datetime,?,21)
+                AND CFECHA <= CONVERT(datetime,?,21)
+            ORDER BY CFECHA DESC
+        ", [$fechainicio, $fechafin]);
+
+    return response()->json([
+        'response' => true,
+        'message' => $respuesta
+    ]);
+}
 
 }
